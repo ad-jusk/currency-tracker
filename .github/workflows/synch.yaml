@@ -1,0 +1,31 @@
+name: Synchronize NBP currencies
+
+on:
+  schedule:
+    - cron 0 0 * * *
+  workflow_dispatch:
+
+jobs:
+  synchronize:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Change workdir
+        run: cd cron
+
+      - name: Prepare firebase cert
+        run: echo '${{ secrets.FIREBASE_SERVICE_KEY }}' > cert.json
+
+      - name: Run script
+        run: node fetch_currencies.js
