@@ -18,8 +18,8 @@ jobs:
         with:
           node-version: 24
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install Firebase admin
+        run: npm ci firebase-admin
 
       - name: Prepare firebase cert
         run: echo '${{ secrets.FIREBASE_SERVICE_KEY }}' > cron/cert.json
