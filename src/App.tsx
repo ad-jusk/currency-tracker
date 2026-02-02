@@ -1,8 +1,14 @@
 import { type ReactElement } from "react";
 import "./firebase/firebase";
+import { Container } from "@mui/material";
+import { TopBar } from "./components/TopBar";
 
 const App = (): ReactElement => {
-  return <p>Hello</p>;
+  return (
+    <Container maxWidth={false}>
+      <TopBar />
+    </Container>
+  );
 };
 
 export default App;
