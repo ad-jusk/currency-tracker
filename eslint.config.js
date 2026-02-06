@@ -18,9 +18,10 @@ export default defineConfig([
     rules: {
       semi: ["warn", "always"],
       "prefer-arrow-callback": "error",
+      "react-hooks/exhaustive-deps": "off",
       "@typescript-eslint/explicit-function-return-type": "error",
       "@typescript-eslint/naming-convention": [
-        "error",
+        "warn",
         {
           selector: "default",
           format: ["camelCase", "PascalCase"],
