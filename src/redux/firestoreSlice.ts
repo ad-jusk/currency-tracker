@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { collection, getDocs } from "firebase/firestore/lite";
+import { collection, getDocs, orderBy, query } from "firebase/firestore/lite";
 import db from "../firebase/firebase";
 import type { RootState } from "./store";
 
@@ -12,20 +12,18 @@ export type Currency = {
 };
 
 type FirestoreState = {
-  currenciesA: Currency[];
+  currenciesA: Record<string, Currency[]>;
   currenciesAMostRecent: Currency[];
   isLoading: boolean;
   error?: Error;
 };
 
 const initialState: FirestoreState = {
-  currenciesA: [],
+  currenciesA: {},
   currenciesAMostRecent: [],
   isLoading: true,
   error: undefined,
 };
-
-const roundMid = (mid: number, dc: number): number => parseFloat(mid.toFixed(dc));
 
 const firestoreSlice = createSlice({
   name: "firestore",
@@ -51,7 +49,15 @@ const firestoreSlice = createSlice({
         }, action.payload[0].date);
         const mostRecent = action.payload.filter((currency) => currency.date === maxDate);
 
-        state.currenciesA = action.payload;
+        const currencies: Record<string, Currency[]> = {};
+        action.payload.forEach((currency) => {
+          if (!currencies[currency.code]) {
+            currencies[currency.code] = [];
+          }
+          currencies[currency.code].push(currency);
+        });
+
+        state.currenciesA = currencies;
         state.currenciesAMostRecent = mostRecent;
         state.isLoading = false;
       });
@@ -62,20 +68,17 @@ export const getTableADataAsync = createAsyncThunk<Currency[], void, { state: Ro
   "firestore/getTableADataAsync",
   async () => {
     const col = collection(db, "table_A");
-    const snapshot = await getDocs(col);
-    const currencies: Currency[] = snapshot.docs
-      .map((doc) => {
-        return { ...doc.data(), id: doc.id } as Currency;
-      })
-      .map((currency) => {
-        return { ...currency, mid: roundMid(currency.mid, 4) };
-      });
+    const q = query(col, orderBy("date", "asc"));
+    const snapshot = await getDocs(q);
+    const currencies: Currency[] = snapshot.docs.map((doc) => {
+      return { ...doc.data(), id: doc.id } as Currency;
+    });
     return currencies;
   },
   {
     condition: (_, { getState }) => {
       const { firestore } = getState();
-      return firestore.currenciesA.length == 0 || firestore.currenciesAMostRecent.length == 0;
+      return firestore.currenciesAMostRecent.length == 0;
     },
   }
 );

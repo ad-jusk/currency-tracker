@@ -1,4 +1,4 @@
-import { useCallback, useEffect, type ReactElement } from "react";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
   Alert,
@@ -15,11 +15,17 @@ import {
 import { getTableADataAsync, type Currency } from "../redux/firestoreSlice";
 import { Table as T } from "../redux/uiSlice";
 import { ChartIcon } from "./ChartIcon";
+import { Chart } from "./Chart";
 
 export const CurrencyTable = (): ReactElement => {
   const { currentTable } = useAppSelector((state) => state.ui);
-  const { currenciesAMostRecent, isLoading, error } = useAppSelector((state) => state.firestore);
+  const { currenciesAMostRecent, currenciesA, isLoading, error } = useAppSelector(
+    (state) => state.firestore
+  );
   const dispatch = useAppDispatch();
+
+  const [chartOpen, setChartOpen] = useState(false);
+  const [chartCurrencyData, setChartCurrencyData] = useState<Currency[]>([]);
 
   useEffect(() => {
     if (currentTable === T.A) {
@@ -27,8 +33,21 @@ export const CurrencyTable = (): ReactElement => {
     }
   }, [currentTable]);
 
-  const onChartClicked = useCallback((currency: Currency): void => {
-    console.log(currency.code, "clicked");
+  const onChartClicked = useCallback(
+    (currency: Currency): void => {
+      if (currentTable == T.A) {
+        setChartCurrencyData(currenciesA[currency.code]);
+      } else {
+        setChartCurrencyData([]);
+      }
+      setChartOpen(true);
+    },
+    [currenciesA, currentTable]
+  );
+
+  const onChartClosed = useCallback(() => {
+    setChartOpen(false);
+    setChartCurrencyData([]);
   }, []);
 
   if (isLoading || error) {
@@ -54,57 +73,61 @@ export const CurrencyTable = (): ReactElement => {
   }
 
   return (
-    <TableContainer component={Paper} sx={{ marginTop: "50px" }}>
-      <Table
-        sx={{
-          "& th, & td": {
-            border: 1,
-            borderColor: "divider",
-          },
-        }}
-      >
-        <TableHead>
-          <TableRow>
-            {["Currency", "Code", "Mid (PLN)", "Chart"].map((header) => (
-              <TableCell
-                align={header !== "Chart" ? "left" : "center"}
-                key={header}
-                sx={{
-                  fontWeight: "bold",
-                  textDecoration: "underline",
-                  textDecorationColor: "orange",
-                  textUnderlineOffset: "8px",
-                  whiteSpace: "pre",
-                }}
-              >
-                {header}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {currenciesAMostRecent.map((currency) => (
-            <TableRow key={currency.id}>
-              <TableCell
-                sx={{
-                  maxWidth: {
-                    xs: 120,
-                    md: 250,
-                  },
-                  overflowX: "auto",
-                }}
-              >
-                {currency.currency}
-              </TableCell>
-              <TableCell align="left">{currency.code}</TableCell>
-              <TableCell align="left">{currency.mid}</TableCell>
-              <TableCell align="center">
-                <ChartIcon onClick={() => onChartClicked(currency)} color="primary" />
-              </TableCell>
+    <>
+      <TableContainer component={Paper} sx={{ marginTop: "50px" }}>
+        <Table
+          sx={{
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            "& th, & td": {
+              border: 1,
+              borderColor: "divider",
+            },
+          }}
+        >
+          <TableHead>
+            <TableRow>
+              {["Currency", "Code", "Mid (PLN)", "Chart"].map((header) => (
+                <TableCell
+                  align={header !== "Chart" ? "left" : "center"}
+                  key={header}
+                  sx={{
+                    fontWeight: "bold",
+                    textDecoration: "underline",
+                    textDecorationColor: "orange",
+                    textUnderlineOffset: "8px",
+                    whiteSpace: "pre",
+                  }}
+                >
+                  {header}
+                </TableCell>
+              ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {currenciesAMostRecent.map((currency) => (
+              <TableRow key={currency.id}>
+                <TableCell
+                  sx={{
+                    maxWidth: {
+                      xs: 120,
+                      md: 250,
+                    },
+                    overflowX: "auto",
+                  }}
+                >
+                  {currency.currency}
+                </TableCell>
+                <TableCell align="left">{currency.code}</TableCell>
+                <TableCell align="left">{currency.mid}</TableCell>
+                <TableCell align="center">
+                  <ChartIcon onClick={() => onChartClicked(currency)} color="primary" />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Chart currencyData={chartCurrencyData} open={chartOpen} onClose={onChartClosed} />
+    </>
   );
 };

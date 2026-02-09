@@ -28,12 +28,6 @@ export default defineConfig([
           leadingUnderscore: "allow",
         },
         {
-          selector: "variable",
-          types: ["boolean"],
-          format: ["PascalCase"],
-          prefix: ["is", "should", "has", "can", "did", "will"],
-        },
-        {
           selector: "typeLike",
           format: ["PascalCase"],
           custom: {
