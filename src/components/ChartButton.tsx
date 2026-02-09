@@ -6,7 +6,7 @@ type Props = {
   color: "primary" | "secondary";
 };
 
-export const ChartIcon = (props: Props): ReactElement => {
+export const ChartButton = (props: Props): ReactElement => {
   return (
     <IconButton onClick={props.onClick}>
       <SvgIcon viewBox="0 0 24 24" color={props.color}>

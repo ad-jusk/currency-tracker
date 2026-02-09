@@ -7,12 +7,14 @@ export const Table = {
 
 type UIState = {
   currentTable: string;
-  searchPhrase: string;
+  searchPhraseA: string;
+  searchPhraseB: string;
 };
 
 const initialState: UIState = {
   currentTable: Table.A,
-  searchPhrase: "",
+  searchPhraseA: "",
+  searchPhraseB: "",
 };
 
 const uiSlice = createSlice({
@@ -22,12 +24,15 @@ const uiSlice = createSlice({
     changeTable: (state, action: PayloadAction<string>) => {
       state.currentTable = action.payload;
     },
-    setSearchPhrase: (state, action: PayloadAction<string>) => {
-      state.searchPhrase = action.payload;
+    setSearchPhraseA: (state, action: PayloadAction<string>) => {
+      state.searchPhraseA = action.payload;
+    },
+    setSearchPhraseB: (state, action: PayloadAction<string>) => {
+      state.searchPhraseB = action.payload;
     },
   },
 });
 
-export const { changeTable, setSearchPhrase } = uiSlice.actions;
+export const { changeTable, setSearchPhraseA, setSearchPhraseB } = uiSlice.actions;
 
 export default uiSlice.reducer;

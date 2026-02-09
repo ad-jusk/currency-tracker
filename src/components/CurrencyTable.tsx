@@ -12,16 +12,23 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { getFilteredACurrencies, getTableADataAsync, type Currency } from "../redux/firestoreSlice";
+import {
+  getFilteredACurrencies,
+  getFilteredBCurrencies,
+  getTableADataAsync,
+  getTableBDataAsync,
+  type Currency,
+} from "../redux/firestoreSlice";
 import { Table as T } from "../redux/uiSlice";
-import { ChartIcon } from "./ChartIcon";
+import { ChartButton } from "./ChartButton";
 import { Chart } from "./Chart";
 import { useSelector } from "react-redux";
 
 export const CurrencyTable = (): ReactElement => {
   const { currentTable } = useAppSelector((state) => state.ui);
-  const { currenciesA, isLoading, error } = useAppSelector((state) => state.firestore);
+  const { currenciesA, currenciesB, isLoading, error } = useAppSelector((state) => state.firestore);
   const filteredACurrencies = useSelector(getFilteredACurrencies);
+  const filteredBCurrencies = useSelector(getFilteredBCurrencies);
   const dispatch = useAppDispatch();
 
   const [chartOpen, setChartOpen] = useState(false);
@@ -30,6 +37,8 @@ export const CurrencyTable = (): ReactElement => {
   useEffect(() => {
     if (currentTable === T.A) {
       dispatch(getTableADataAsync());
+    } else if (currentTable === T.B) {
+      dispatch(getTableBDataAsync());
     }
   }, [currentTable]);
 
@@ -37,12 +46,14 @@ export const CurrencyTable = (): ReactElement => {
     (currency: Currency): void => {
       if (currentTable === T.A) {
         setChartCurrencyData(currenciesA[currency.code]);
+      } else if (currentTable === T.B) {
+        setChartCurrencyData(currenciesB[currency.code]);
       } else {
         setChartCurrencyData([]);
       }
       setChartOpen(true);
     },
-    [currenciesA, currentTable]
+    [currenciesA, currenciesB, currentTable]
   );
 
   const onChartClosed = useCallback(() => {
@@ -53,6 +64,8 @@ export const CurrencyTable = (): ReactElement => {
   const getFilteredCurrencies = (): Currency[] => {
     if (currentTable === T.A) {
       return filteredACurrencies;
+    } else if (currentTable === T.B) {
+      return filteredBCurrencies;
     }
     return [];
   };
@@ -127,7 +140,7 @@ export const CurrencyTable = (): ReactElement => {
                 <TableCell align="left">{currency.code}</TableCell>
                 <TableCell align="left">{currency.mid}</TableCell>
                 <TableCell align="center">
-                  <ChartIcon onClick={() => onChartClicked(currency)} color="primary" />
+                  <ChartButton onClick={() => onChartClicked(currency)} color="primary" />
                 </TableCell>
               </TableRow>
             ))}

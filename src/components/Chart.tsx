@@ -1,7 +1,8 @@
 import type { ReactElement } from "react";
 import type { Currency } from "../redux/firestoreSlice";
-import { Button, Dialog, DialogContent } from "@mui/material";
+import { Dialog, DialogContent } from "@mui/material";
 import { LineChart } from "@mui/x-charts";
+import { ClearButton } from "./ClearButton";
 
 type Props = {
   currencyData: Currency[];
@@ -15,7 +16,22 @@ export const Chart = ({ currencyData, open, onClose }: Props): ReactElement => {
       <DialogContent>
         {open && (
           <>
-            <CloseButton onClose={onClose} />
+            <ClearButton
+              onClick={onClose}
+              color="primary"
+              sx={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+                p: 0,
+                opacity: 0.5,
+                transition: "opacity 0.25s",
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                "&:hover": {
+                  opacity: 1,
+                },
+              }}
+            />
             <LineChart
               dataset={currencyData}
               margin={{ right: 50 }}
@@ -66,32 +82,5 @@ export const Chart = ({ currencyData, open, onClose }: Props): ReactElement => {
         )}
       </DialogContent>
     </Dialog>
-  );
-};
-
-const CloseButton = (props: { onClose: () => void }): ReactElement => {
-  return (
-    <Button
-      onClick={props.onClose}
-      sx={{
-        position: "absolute",
-        top: 10,
-        right: 10,
-        minWidth: 0,
-        width: { xs: 30, md: 35 },
-        height: { xs: 30, md: 35 },
-        background: "orange",
-        color: "#EEEEEE",
-        borderRadius: "50%",
-        opacity: 0.5,
-        transition: "opacity 0.5s",
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        "&:hover": {
-          opacity: 1,
-        },
-      }}
-    >
-      X
-    </Button>
   );
 };
