@@ -76,3 +76,4 @@ const deleteDocs = async (db, snapshot) => {
 };
 
 synchCurrencies("A");
+synchCurrencies("B");

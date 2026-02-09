@@ -1,4 +1,9 @@
-import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
 import { collection, getDocs, orderBy, query } from "firebase/firestore/lite";
 import db from "../firebase/firebase";
 import type { RootState } from "./store";
@@ -64,23 +69,40 @@ const firestoreSlice = createSlice({
   },
 });
 
+const getTableData = async (tableName: string): Promise<Currency[]> => {
+  const col = collection(db, tableName);
+  const q = query(col, orderBy("date", "asc"));
+  const snapshot = await getDocs(q);
+  const currencies: Currency[] = snapshot.docs.map((doc) => {
+    return { ...doc.data(), id: doc.id } as Currency;
+  });
+  return currencies;
+};
+
 export const getTableADataAsync = createAsyncThunk<Currency[], void, { state: RootState }>(
   "firestore/getTableADataAsync",
-  async () => {
-    const col = collection(db, "table_A");
-    const q = query(col, orderBy("date", "asc"));
-    const snapshot = await getDocs(q);
-    const currencies: Currency[] = snapshot.docs.map((doc) => {
-      return { ...doc.data(), id: doc.id } as Currency;
-    });
-    return currencies;
-  },
+  async () => getTableData("table_A"),
   {
     condition: (_, { getState }) => {
       const { firestore } = getState();
       return firestore.currenciesAMostRecent.length == 0;
     },
   }
+);
+
+export const getFilteredACurrencies = createSelector(
+  [
+    (state: RootState): Currency[] => state.firestore.currenciesAMostRecent,
+    (state: RootState): string => state.ui.searchPhrase,
+  ],
+  (currencies, searchPhrase) =>
+    currencies.filter((currency) => {
+      const searchPhraseLowercase = searchPhrase.toLowerCase();
+      return (
+        currency.currency.toLowerCase().includes(searchPhraseLowercase) ||
+        currency.code.toLowerCase().includes(searchPhraseLowercase)
+      );
+    })
 );
 
 export default firestoreSlice.reducer;

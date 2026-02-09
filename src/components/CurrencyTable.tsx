@@ -12,16 +12,16 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { getTableADataAsync, type Currency } from "../redux/firestoreSlice";
+import { getFilteredACurrencies, getTableADataAsync, type Currency } from "../redux/firestoreSlice";
 import { Table as T } from "../redux/uiSlice";
 import { ChartIcon } from "./ChartIcon";
 import { Chart } from "./Chart";
+import { useSelector } from "react-redux";
 
 export const CurrencyTable = (): ReactElement => {
   const { currentTable } = useAppSelector((state) => state.ui);
-  const { currenciesAMostRecent, currenciesA, isLoading, error } = useAppSelector(
-    (state) => state.firestore
-  );
+  const { currenciesA, isLoading, error } = useAppSelector((state) => state.firestore);
+  const filteredACurrencies = useSelector(getFilteredACurrencies);
   const dispatch = useAppDispatch();
 
   const [chartOpen, setChartOpen] = useState(false);
@@ -35,7 +35,7 @@ export const CurrencyTable = (): ReactElement => {
 
   const onChartClicked = useCallback(
     (currency: Currency): void => {
-      if (currentTable == T.A) {
+      if (currentTable === T.A) {
         setChartCurrencyData(currenciesA[currency.code]);
       } else {
         setChartCurrencyData([]);
@@ -49,6 +49,13 @@ export const CurrencyTable = (): ReactElement => {
     setChartOpen(false);
     setChartCurrencyData([]);
   }, []);
+
+  const getFilteredCurrencies = (): Currency[] => {
+    if (currentTable === T.A) {
+      return filteredACurrencies;
+    }
+    return [];
+  };
 
   if (isLoading || error) {
     return (
@@ -104,7 +111,7 @@ export const CurrencyTable = (): ReactElement => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {currenciesAMostRecent.map((currency) => (
+            {getFilteredCurrencies().map((currency) => (
               <TableRow key={currency.id}>
                 <TableCell
                   sx={{
