@@ -1,6 +1,6 @@
 import { Autocomplete, Box, TextField } from "@mui/material";
 import type { ReactElement } from "react";
-import { changeTable, Table } from "../redux/uiSlice";
+import { changeTable, setSearchPhrase, Table } from "../redux/uiSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 
 export const TopBar = (): ReactElement => {
@@ -17,20 +17,27 @@ export const TopBar = (): ReactElement => {
         px: 2,
       }}
     >
-      <Box sx={{ width: 1, display: "flex" }}>
-        <p>Currency tracker</p>
+      <h2>Currency tracker</h2>
+      <Box sx={{ display: "flex", width: 1, justifyContent: "space-evenly" }}>
+        <Autocomplete
+          disablePortal
+          disableClearable
+          options={[Table.A]}
+          sx={{ width: { xs: 150, sm: 200, md: 300, lg: 350 } }}
+          value={currentTable}
+          onChange={(_, newValue) => {
+            dispatch(changeTable(newValue));
+          }}
+          renderInput={(params) => <TextField {...params} label="Select table" />}
+        />
+        <TextField
+          onChange={(e) => {
+            dispatch(setSearchPhrase(e.target.value));
+          }}
+          label="Search"
+          sx={{ width: { xs: 150, sm: 200, md: 300, lg: 350 } }}
+        />
       </Box>
-      <Autocomplete
-        disablePortal
-        disableClearable
-        options={[Table.A]}
-        sx={{ width: 300 }}
-        value={currentTable}
-        onChange={(_, newValue) => {
-          dispatch(changeTable(newValue));
-        }}
-        renderInput={(params) => <TextField {...params} label="Select table" />}
-      />
     </Box>
   );
 };
