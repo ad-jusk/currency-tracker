@@ -43,11 +43,11 @@ export const CurrencyTable = (): ReactElement => {
   }, [currentTable]);
 
   const onChartClicked = useCallback(
-    (currency: Currency): void => {
+    (currencyCode: string): void => {
       if (currentTable === T.A) {
-        setChartCurrencyData(currenciesA[currency.code]);
+        setChartCurrencyData(currenciesA[currencyCode]);
       } else if (currentTable === T.B) {
-        setChartCurrencyData(currenciesB[currency.code]);
+        setChartCurrencyData(currenciesB[currencyCode]);
       } else {
         setChartCurrencyData([]);
       }
@@ -140,7 +140,11 @@ export const CurrencyTable = (): ReactElement => {
                 <TableCell align="left">{currency.code}</TableCell>
                 <TableCell align="left">{currency.mid}</TableCell>
                 <TableCell align="center">
-                  <ChartButton onClick={() => onChartClicked(currency)} color="primary" />
+                  <ChartButton
+                    currencyCode={currency.code}
+                    onClick={onChartClicked}
+                    color="primary"
+                  />
                 </TableCell>
               </TableRow>
             ))}
