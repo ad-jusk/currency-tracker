@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactElement } from "react";
 import type { Currency } from "../redux/firestoreSlice";
 import { Box, Dialog, DialogContent, Fade, useMediaQuery, useTheme } from "@mui/material";
-import { LineChart } from "@mui/x-charts";
+import { chartsSurfaceClasses, LineChart } from "@mui/x-charts";
 import { ClearButton } from "./ClearButton";
 
 type Props = {
@@ -73,6 +73,13 @@ export const Chart = ({ currencyData, open, onClose }: Props): ReactElement => {
                     sm: 450,
                     md: 500,
                   },
+                  ...(isMobile
+                    ? {
+                        [`.${chartsSurfaceClasses.root}`]: {
+                          touchAction: "pan-x",
+                        },
+                      }
+                    : {}),
                 }}
                 xAxis={[
                   {
