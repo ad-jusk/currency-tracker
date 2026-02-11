@@ -88,7 +88,7 @@ export const Chart = ({ currencyData, open, onClose }: Props): ReactElement => {
                       textAnchor: "start",
                       dominantBaseline: "hanging",
                     },
-                    height: 100,
+                    height: 105,
                   },
                 ]}
                 yAxis={[

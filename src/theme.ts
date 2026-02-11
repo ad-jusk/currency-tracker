@@ -16,7 +16,7 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: "Consolas",
+    fontFamily: '"JetBrains Mono", monospace',
   },
   components: {
     MuiCssBaseline: {
