@@ -1,6 +1,6 @@
-import { type ReactElement } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 import type { Currency } from "../redux/firestoreSlice";
-import { Box, Dialog, DialogContent, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Dialog, DialogContent, Fade, useMediaQuery, useTheme } from "@mui/material";
 import { LineChart } from "@mui/x-charts";
 import { ClearButton } from "./ClearButton";
 
@@ -13,6 +13,18 @@ type Props = {
 export const Chart = ({ currencyData, open, onClose }: Props): ReactElement => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [scrollPromptVisible, setScrollPromptVisible] = useState(true);
+
+  useEffect(() => {
+    if (!isMobile || !open) {
+      return;
+    }
+    const timeout = setTimeout(() => setScrollPromptVisible(false), 5000);
+    return (): void => {
+      clearTimeout(timeout);
+      setScrollPromptVisible(true);
+    };
+  }, [open]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
@@ -36,6 +48,22 @@ export const Chart = ({ currencyData, open, onClose }: Props): ReactElement => {
                   },
                 }}
               />
+              {isMobile && (
+                <Fade in={scrollPromptVisible} timeout={750}>
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: 10,
+                      right: 10,
+                      color: "orange",
+                      fontWeight: "bold",
+                      zIndex: 1,
+                    }}
+                  >
+                    {"Scroll >"}
+                  </Box>
+                </Fade>
+              )}
               <LineChart
                 dataset={currencyData}
                 margin={{ right: 50 }}
